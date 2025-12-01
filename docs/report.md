@@ -76,25 +76,27 @@ Table 1: (아래 내용을 바탕으로 표 작성)
 ============================================================
 SOTA CNN Model - Exhaustive Test Results
 ============================================================
-Total computation time:    831.8990 seconds
-Time per iteration:        83.1899 ms
-Precision:                 10.89% (1089/10000)
-Deviation mean:            -1.1298
-Deviation std:             4.0698
+Training time (1k epochs): 16m 50.3s
+Total inference time:      287.8670 seconds
+Time per iteration:        28.7867 ms
+Precision:                 78.49% (7849/10000)
+Deviation mean:            -0.4912
+Deviation std:             13.5331
 ============================================================
 
 ============================================================
 SOTA Transformer Model - Exhaustive Test Results
 ============================================================
-Total computation time:    70.7286 seconds
+Training time (1k epochs): 3m 27.8s
+Total inference time:      70.7286 seconds
 Time per iteration:        7.0729 ms
 Precision:                 82.21% (8221/10000)
 Deviation mean:            -0.5869
 Deviation std:             13.5519
 ============================================================
 
-결과를 살펴보면 Transformer가 압도적으로 
+결과를 살펴보면 Transformer가
 
-Figure 3: cnn_sota_scatter.png | Figure 4: tf_sota_scatter2.png
+Figure 3: cnn_sota_scatter2.png | Figure 4: tf_sota_scatter2.png
 
 
