@@ -59,9 +59,9 @@ Figure 2를 보면 CNN과 꽤나 유사한 형태를 띠는 것을 알 수 있�
 Figure 1과 Figure 2를 종합적으로 살펴보면 transformer가 일반적으로 test accuracy가 더 높으면서 training time은 더 짧은 것을 알 수 있다. 성능이 준수하게 나온 hyperparameter를 바탕으로 아래와 같이 SOTA model을 선정해봤다.
 
 ```
-CNN_EMBED_DIM      = 1024 
-CNN_CONV_LAYER_NUM = 16
-CNN_NUM_CHANNELS   = 32
+CNN_EMBED_DIM      = 4096 
+CNN_CONV_LAYER_NUM = 2
+CNN_NUM_CHANNELS   = 64
 ```
 
 ```
@@ -71,6 +71,9 @@ TF_HIDDEN_DIM        = 64
 ```
 
 이후 이 결과를 바탕으로 00 + 00 부터 99 + 99까지 가능한 모든 경우에 대해 prediction을 해봤다.
+
+Figure 3: loss_comparison.png
+loss 감소는 두 모델이 유사한 형태를 보여주고 있다.
 
 Table 1: (아래 내용을 바탕으로 표 작성)
 ============================================================
@@ -95,8 +98,17 @@ Deviation mean:            -0.5869
 Deviation std:             13.5519
 ============================================================
 
-결과를 살펴보면 Transformer가
+결과를 살펴보면 Transformer가 연산 시간이 훨씬 적게 걸리면서 정확도는 더 높음을 알 수 있다.
 
-Figure 3: cnn_sota_scatter2.png | Figure 4: tf_sota_scatter2.png
+Figure 4: cnn_sota_scatter2.png | Figure 5: tf_sota_scatter2.png
 
+전수 조사 scatter를 살펴보면 그 특징이 보다 뚜렷하게 나타난다. 주목할만한 점은 CNN은 ±10에 주로 error가 몰려 있고 일부 ±90에 error가 분포되어 있지만 transformer는 ±10에 error가 주로 있어도 전체적으로 error가 퍼져 있는 것을 알 수 있다.
 
+Figure 6: box_plot2.png
+
+상자 수염 그림을 봐도 그 차이를 알 수 있다.
+
+Figure 7: frequent_deviations.png
+최빈값 그래프를 보면 앞서 언급한 특징이 보다 두드러진다.
+
+결론적으로 
