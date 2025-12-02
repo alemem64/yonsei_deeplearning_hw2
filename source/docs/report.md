@@ -135,3 +135,84 @@ Transformer:
 반면 transformer는 self attention에서 모든 숫자들이 서로 연관되어 있기 때문에 CNN보다는 carry를 보다 잘 학습한 것을 알 수 있다. 하지만 동시에 CNN보다는 각 자리의 공간적 이해가 부족하기 때문에 전체적으로 더 퍼져 있는 것을 알 수 있다.
 
 결론적으로 보자면 각 자릿수 연산이 매우 중요하다면 CNN이 더 좋은 구조이겠지만 실제로 딱 맞아 떨어지는 정확도와 훈련 속도, 추론 속도까지 전반적인 것들을 고려한다면 transforemr가 보다 적합한 구조라 할 수 있다.
+
+# 문제 (1) 재시도
+지훈과 토의를 하면서 몇가지를 더 개선했다. 이전 내용에서 성능이 안 나왔던 이유로는 learning rate가 너무 작아서였던 것으로 알아냈다. 지훈은 5e-3으로 했는데 나는 기존과 동일하게 1e-4로 했기 때문이다. lr이 너무 작아서 학습이 제대로 안 되고 있었던 것이다. 추가로 covolution을 3중 for문이 아니라 전부 matrix 연산으로 바꿔서 속도가 더 빨라졌다. transformer에서도 마찬가지로 lr이 문제였는데 기존에 positional encoding을 넣었다가 성능이 안 나와서 다시 뺐는데 lr을 높였을 때는 positional encoding이 마지막 한 자릿수 정확도에서 중요했다.
+
+먼저 CNN을 다시 살펴보겠다.
+
+DEFAULT_EMBED_DIM      = 32
+DEFAULT_CONV_LAYER_NUM = 2
+DEFAULT_NUM_CHANNELS   = 32
+
+위와 같이 고정하고
+
+embed_dims   = [4, 8, 16, 32, 64, 128, 256, 512]
+conv_layers = [1, 2, 3, 4, 5, 6, 7, 8]
+num_channels_list = [4, 8, 16, 32, 64, 128, 256, 512]
+
+위와 같은 값을 변화시켜봤다.
+
+Figure cnn_try3.png
+
+결과는 cnn_try3.png 과 같이 나왔다. 
+
+
+DEFAULT_EMBED_DIM         = 64
+DEFAULT_ENCODER_LAYER_NUM = 2
+DEFAULT_HIDDEN_DIM        = 128
+
+embed_dims   = [4, 8, 16, 32, 64, 128, 256, 512]
+encoder_layers = [1, 2, 3, 4, 5, 6, 7, 8]
+hidden_dims   = [4, 8, 16, 32, 64, 128, 256, 512]
+
+transformer는 위와 같이 변화시켜봤고 결과는 tf_try4.png 와 같다.
+
+Figure tf_try4.png
+
+
+# 문제 (2) 재시도
+EMBED_DIM      = 128
+CONV_LAYER_NUM = 2
+NUM_CHANNELS   = 64
+LEARNING_RATE  = 8e-3
+
+여러번 테스트를 해보면서 CNN은 최종적으로 위와 같이 설정했고 650 epoch에서 loss가 0.0000 이 나왔다.
+
+EMBED_DIM         = 8
+ENCODER_LAYER_NUM = 2
+HIDDEN_DIM        = 32
+LEARNING_RATE     = 6e-3
+
+transformer는 위와 같이 했고 5000 epoch에서도 loss가 0.0001로 나왔다.
+
+
+(아래 내용으로 Table 작성)
+============================================================
+SOTA CNN Model - Exhaustive Test Results
+============================================================
+Total computation time:    9.3049 seconds
+Time per iteration:        0.9305 ms
+Precision:                 100.00% (10000/10000)
+Deviation mean:            0.0000
+Deviation std:             0.0000
+Checkpoint size:           482KB
+============================================================
+
+============================================================
+SOTA Transformer Model - Exhaustive Test Results
+============================================================
+Total computation time:    14.6648 seconds
+Time per iteration:        1.4665 ms
+Precision:                 100.00% (10000/10000)
+Deviation mean:            0.0000
+Deviation std:             0.0000
+Checkpoint size:           23KB
+============================================================
+
+전수 조사 결과 위 Table과 같이 결과가 나왔다. lr을 높이니 결론이 뒤바뀌었다. cnn은 여러 parameter에서도 잘 학습이 되는데 transformer는 좀 더 학습이 까다로웠다. 사실 cnn이든 transformer든 이렇게 간단한 task를 못할 리가 없는데 지금 와서 보니 참 웃기다. lr이 중요함을 깨닫게 되는 것 같다.
+
+한편 model weight checkpoint size는 거의 20배 가까이 transformer가 가볍게 나왔다. hyperparameter를 적게 해서 그런 것 같다. 그래서 한 번 cnn도 더 줄여봤는데 2, 2, 16으로 해도 거의 비슷한 결과가 나왔고 size는 17KB가 나왔다.
+
+
+결론적으로 속도, 정확도, 모델 크기, 학습의 용이성 모든 측면에서 cnn이 좋다고 결론내릴 수 있겠다.
